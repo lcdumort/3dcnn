@@ -5,15 +5,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 hdf5_path = 'data/dataset.hdf5'
+
 def ReadFile(hdf5_path):
     '''
     reads in the hdf5-file and returns the training data-set and training labels
     '''
     with h5py.File(hdf5_path) as file:
         train_sample = file['train_data'][:,:,:,:,:]
-        hydro_value = file['train_labels']
+        hydro_value = file['train_labels'][:]
         return train_sample, hydro_value
-
     
 def GetRandomSamples(samples):
     '''
@@ -23,8 +23,7 @@ def GetRandomSamples(samples):
     with h5py.File(hdf5_path) as file:
         train_labels = file['train_labels'][:]
     
-    return train_labels[np.random.randint(low=0,high=train_labels.size,size=samples)]
-        
+    return train_labels[np.random.randint(low=0,high=train_labels.size,size=samples)]       
         
 def GetHydroSamples(hydro,samples):
     '''
@@ -36,7 +35,6 @@ def GetHydroSamples(hydro,samples):
         train_labels = np.where(train_labels == hydro)[0]
 
     return train_labels[np.random.randint(low=0, high=train_labels.size, size=samples)]
-
 
 def TwoDimHeatmap(data,z,c,**kwargs):
     '''
