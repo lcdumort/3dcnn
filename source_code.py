@@ -11,9 +11,10 @@ def ReadFile(hdf5_path):
     reads in the hdf5-file and returns the training data-set and training labels
     '''
     with h5py.File(hdf5_path) as file:
-        train_sample = file['train_data'][:,:,:,:,:]
-        hydro_value = file['train_labels'][:]
-        return train_sample, hydro_value
+        x_train = file['train_data'][:,:,:,:,:]
+        y_train = file['train_labels'][:]
+        
+        return x_train, y_train, x_test, y_test
     
 def GetRandomSamples(samples):
     '''
