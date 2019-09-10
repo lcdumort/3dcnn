@@ -6,15 +6,24 @@ import matplotlib.pyplot as plt
 
 hdf5_path = 'data/dataset.hdf5'
 
-def ReadFile(hdf5_path):
+def ReadFile(hdf5_path,split=False):
     '''
-    reads in the hdf5-file and returns the training data-set and training labels
+    reads in the hdf5-file and returns the training data-set and training labels.
+    Can split them if required
     '''
     with h5py.File(hdf5_path) as file:
-        x_train = file['train_data'][:,:,:,:,:]
-        y_train = file['train_labels'][:]
+        x_data = file['train_data'][:,:,:,:,:]
+        y_data = file['train_labels'][:]
         
-        return x_train, y_train, x_test, y_test
+    if split:
+        from sklearn.model_selection import train_test_split
+        x_train, x_test, y_train, y_test = train_test_split(
+            x_data, y_data, train_size=0.6, random_state=12345)
+
+        return x_train, x_test, y_train, y_test
+
+    else:
+        return x_data, y_data
     
 def GetRandomSamples(samples):
     '''
@@ -114,3 +123,49 @@ def MultipleAnalysis(hydro,samps):
     for sample in test:
         print('> SAMPLE NUMBER: ',sample)
         AnalyseSimulation(sample,15)
+
+def Scale(x_train,x_test=None):
+    '''
+    Scales the x_train and x_test with the mean and std from x_train
+    '''
+    avr = np.mean(x_train,axis=(0,1,2,3))
+    std = np.std(x_train,axis=(0,1,2,3))
+    
+    x_train_scaled = (x_train - avr)/std
+
+    if x_test is not None:
+        x_test_scaled = (x_test - avr)/std
+
+        return x_train_scaled,x_test_scaled
+
+    else:
+        return x_train_scaled
+
+def Rotate(sample,axis):
+    '''
+    Can mirror a sample in accordance with a defined axis.
+    *When using axis = 0: mirrored over y-axis
+    *when using axis = 1: mirrored over x-axis
+    *when using axis = 2: mirrored over z-axis
+    *when using axis = 3: mirrored over channel => lets not do that :D
+    '''
+    return np.flip(sample,axis=axis)
+
+def RandomRotateSamples(data):
+    '''
+    Randomly rotates each sample of the dataset over a x,y,z, 
+    defined by a random generated vector (seeded)
+    '''
+    np.random.seed(12345)
+    length = data.shape[0]
+    randomvector = np.random.randint(0,3,length)
+    res = list()
+    for x in range(length):
+        intermediate = sc.Rotate(data[x],axis=randomvector[x])
+        
+        #correct up to here. should find something to keep it
+        #the same format
+        #somehow workes when using list instead and then converting
+        #back to an array
+        res.append(intermediate)
+    return np.asarray(res), randomvector
