@@ -161,7 +161,7 @@ def RandomRotateSamples(data):
     randomvector = np.random.randint(0,3,length)
     res = list()
     for x in range(length):
-        intermediate = sc.Rotate(data[x],axis=randomvector[x])
+        intermediate = Rotate(data[x],axis=randomvector[x])
         
         #correct up to here. should find something to keep it
         #the same format
