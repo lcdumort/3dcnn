@@ -6,23 +6,30 @@ import matplotlib.pyplot as plt
 
 hdf5_path = 'data/dataset.hdf5'
 
-def ReadFile(hdf5_path,split=False):
+def ReadFile(hdf5_path,data = 'train', split=False):
     '''
     reads in the hdf5-file and returns the training data-set and training labels.
     Can split them if required
     '''
-    with h5py.File(hdf5_path) as file:
-        x_data = file['train_data'][:,:,:,:,:]
-        y_data = file['train_labels'][:]
-        
-    if split:
-        from sklearn.model_selection import train_test_split
-        x_train, x_test, y_train, y_test = train_test_split(
-            x_data, y_data, train_size=0.6, random_state=12345)
+    if data == 'train':
+        with h5py.File(hdf5_path) as file:
+            x_data = file['train_data'][:,:,:,:,:]
+            y_data = file['train_labels'][:]
+            
+        if split:
+            from sklearn.model_selection import train_test_split
+            x_train, x_test, y_train, y_test = train_test_split(
+                x_data, y_data, train_size=0.6, random_state=12345)
 
-        return x_train, x_test, y_train, y_test
+            return x_train, x_test, y_train, y_test
 
+        else:
+            return x_data, y_data
     else:
+        with h5py.File(hdf5_path) as file:
+            x_data = file['test_data'][:,:,:,:,:]
+            y_data = file['test_labels'][:]
+
         return x_data, y_data
     
 def GetRandomSamples(samples):
